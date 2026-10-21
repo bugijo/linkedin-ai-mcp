@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { timingSafeEqual } from "node:crypto";
+import { isAuthorized, isAllowedOrigin, isValidContentLength } from "./http-security.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createPublicSafeServer } from "./public-safe-server.js";
 
@@ -8,12 +8,6 @@ if (!secret || secret.length < 32) throw new Error("MCP_BEARER_TOKEN must be at 
 const port = Number(process.env.PORT ?? "3000");
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Invalid PORT");
 
-function authorized(header: string | undefined): boolean {
-  const expected = Buffer.from("Bearer " + secret);
-  const actual = Buffer.from(header ?? "");
-  return actual.length === expected.length && timingSafeEqual(actual, expected);
-}
-
 const httpServer = createServer(async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
@@ -21,7 +15,7 @@ const httpServer = createServer(async (req, res) => {
     res.writeHead(404).end("Not found");
     return;
   }
-  if (!authorized(req.headers.authorization)) {
+  if (!isAuthorized(req.headers.authorization, secret)) {
     res.writeHead(401, { "WWW-Authenticate": "Bearer" }).end("Unauthorized");
     return;
   }
@@ -31,12 +25,11 @@ const httpServer = createServer(async (req, res) => {
   }
   const origin = req.headers.origin;
   const allowedOrigin = process.env.MCP_ALLOWED_ORIGIN;
-  if (origin && (!allowedOrigin || origin !== allowedOrigin)) {
+  if (!isAllowedOrigin(origin, allowedOrigin)) {
     res.writeHead(403).end("Origin forbidden");
     return;
   }
-  const contentLength = Number(req.headers["content-length"] ?? "0");
-  if (contentLength > 64 * 1024) {
+  if (!isValidContentLength(req.headers["content-length"])) {
     res.writeHead(413).end("Request too large");
     return;
   }

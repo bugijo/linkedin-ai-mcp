@@ -33,3 +33,7 @@ No LinkedIn tokens are loaded by this server. Publishing is not supported.
 - Test oversized and chunked request handling before any external deployment
 
 Do not claim a successful ChatGPT connection until it has been tested with a supported remote client.
+
+## Current hardening work
+
+The authorization, browser origin, and declared Content-Length checks have isolated unit tests. A streaming body limiter and its tests have also been added, but **the limiter is not yet wired into the MCP HTTP request handler**. Therefore chunked oversized requests remain a deployment blocker. Do not expose this prototype to the public internet.
