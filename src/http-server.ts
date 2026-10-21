@@ -11,6 +11,10 @@ if (!secret || secret.length < 32) throw new Error("MCP_BEARER_TOKEN must be at 
 const port = Number(process.env.PORT ?? "3000");
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Invalid PORT");
 
+const limiter = new FixedWindowRateLimiter(60, 60_000);
+const pruneTimer = setInterval(() => limiter.prune(), 60_000);
+pruneTimer.unref();
+
 const httpServer = createServer(async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
