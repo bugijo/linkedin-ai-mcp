@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - dev/initial-foundation
+      - dev/http-security-tests
   pull_request:
   workflow_dispatch:
 
