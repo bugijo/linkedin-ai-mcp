@@ -10,10 +10,11 @@ Servidor MCP experimental em TypeScript para preparar conteúdo e integrar publi
 - `draft_post`: rascunho local, sem efeitos externos.
 - `auth_status`: indica presença de token local válido, sem revelá-lo.
 - `preview_post`: prévia local, sem código de aprovação nem publicação (servidor padrão).
+- `plan_content`: ideias editoriais locais, sem agendamento ou publicação (servidor HTTP experimental).
 - Nenhum dos entrypoints MCP expõe uma ferramenta de publicação.
 - `npm run auth`: fluxo OAuth local com callback e gravação restrita do token.
 
-**Importante:** `npm start` executa `dist/safe-server.js`, sem ferramentas de publicação. O antigo `dist/index.js` agora apenas encaminha ao servidor seguro. A integração remota com ChatGPT ainda não foi criada.
+**Importante:** `npm start` executa `dist/safe-server.js`, sem ferramentas de publicação. O antigo `dist/index.js` agora apenas encaminha ao servidor seguro. O protótipo HTTP local existe, mas a integração remota com ChatGPT ainda não foi validada.
 
 ## Requisitos
 
@@ -68,6 +69,17 @@ Não compartilhe client secret, tokens, códigos de autorização ou cookies nes
 - Não existe ainda servidor MCP HTTPS remoto para ChatGPT.
 - Nenhum código de terceiros foi copiado; projetos de referência estão em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Próximas fases
+
+- **1 — Estabilização:** confirmar `npm test` e integração MCP no CI; não fazer merge com testes desconhecidos.
+- **2 — Hospedagem:** preparar infraestrutura HTTPS e autenticação remota antes de expor portas.
+- **3 — ChatGPT/Codex:** validar conexão com cliente remoto compatível.
+- **4 — LinkedIn:** criar aplicativo Developer e obter OAuth/permissões oficiais.
+- **5 — Publicação:** exigir aprovação humana explícita por postagem; não habilitada.
+- **6 — Automação:** `plan_content` gera ideias; agendamento e métricas reais ainda não implementados.
+
+Consulte `docs/DEPLOYMENT_READINESS.md`, `docs/REMOTE_AUTH_DESIGN.md` e `docs/STAGING_SMOKE_TEST.md`.
+
 ## Desenvolvimento
 
-Branch: `dev/initial-foundation`. Não houve merge na `main`.
+A branch `main` contém a fundação inicial. O trabalho de endurecimento HTTP e planejamento editorial está na branch `dev/http-security-tests` e no PR #3; não há publicação automática.
