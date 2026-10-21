@@ -62,13 +62,12 @@ const httpServer = createServer(async (req, res) => {
     sessionIdGenerator: undefined,
     enableJsonResponse: true
   });
+  res.once("close", () => { void server.close(); });
   try {
     await server.connect(transport);
     await transport.handleRequest(req, res, parsedBody);
   } catch {
     if (!res.headersSent) res.writeHead(500).end("Internal error");
-  } finally {
-    res.on("close", () => { void server.close(); });
   }
 });
 httpServer.requestTimeout = 15_000;
