@@ -18,3 +18,9 @@ test("warns about links and excessive hashtags", () => {
   const result = reviewPost("Confira https://example.com #a #b #c #d #e #f");
   assert.equal(result.warnings.length, 2);
 });
+
+test("counts Unicode characters instead of UTF-16 code units", () => {
+  const result = reviewPost("🙂".repeat(2000));
+  assert.equal(result.characters, 2000);
+  assert.throws(() => reviewPost("🙂".repeat(3001)));
+});
