@@ -40,6 +40,26 @@ test("HTTP MCP rejects unauthorized and invalid requests", { timeout: 15000 }, a
     assert.equal(invalidMethod.status, 405);
     const invalidJson = await fetch(url, { method: "POST", headers: { ...headers, "Content-Type": "application/json" }, body: "{" });
     assert.equal(invalidJson.status, 400);
+    const initialize = await fetch(url, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+      body: JSON.stringify({
+        jsonrpc: "2.0", id: 1, method: "initialize",
+        params: { protocolVersion: "2025-03-26", capabilities: {}, clientInfo: { name: "integration-test", version: "1.0" } }
+      })
+    });
+    assert.equal(initialize.status, 200);
+    const initialized = await initialize.json() as { result?: { serverInfo?: { name?: string } } };
+    assert.equal(initialized.result?.serverInfo?.name, "linkedin-ai-mcp");
+    const listed = await fetch(url, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} })
+    });
+    assert.equal(listed.status, 200);
+    const toolsResponse = await listed.json() as { result?: { tools?: Array<{ name: string }> } };
+    assert.deepEqual(toolsResponse.result?.tools?.map((tool) => tool.name).sort(),
+      ["draft_post", "get_capabilities", "preview_post"]);
     const invalidOrigin = await fetch(url, { method: "POST", headers: { ...headers, "Content-Type": "application/json", Origin: "https://untrusted.example" }, body: "{}" });
     assert.equal(invalidOrigin.status, 403);
   } finally {
