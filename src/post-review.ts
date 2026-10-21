@@ -7,7 +7,7 @@ export type PostReview = {
 
 export function reviewPost(value: string): PostReview {
   const text = value.trim();
-  if (text.length < 1 || text.length > 3000) {
+  if (Array.from(text).length < 1 || Array.from(text).length > 3000) {
     throw new Error("Post deve conter de 1 a 3000 caracteres");
   }
   const warnings: string[] = [];
