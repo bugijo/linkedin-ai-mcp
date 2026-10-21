@@ -25,3 +25,16 @@ The local HTTP MCP prototype is not a production service. Its bearer token is in
 - Verify publication scope and revocation handling.
 
 Do not deploy or publish until the corresponding prerequisites are met.
+
+## Current execution checkpoint (2026-10-21)
+
+- Phase 1: security helpers, tests and CI trigger committed; full npm test/CI result unverified.
+- Phase 2: deployment requirements documented; no public hosting account configured.
+- Phase 3: MCP initialize/tools/list and safe tool calls have automated integration tests, but no ChatGPT/Codex remote connection has been validated.
+- Phase 4: LinkedIn OAuth code and offline tests exist; no Developer application or authorized token.
+- Phase 5: review and approval helpers exist, but publishing is intentionally absent from the exposed MCP tools.
+- Phase 6: local draft-only editorial planning is implemented; scheduling and analytics are not.
+
+Four isolated local checks of editorial planning and rate limiting passed with Node 22 experimental TypeScript transformation. These do not replace the repository's full npm test suite.
+
+**Do not interpret this checkpoint as production readiness or authorization to publish.**
