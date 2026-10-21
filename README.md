@@ -10,10 +10,10 @@ Servidor MCP experimental em TypeScript para preparar conteúdo e integrar publi
 - `draft_post`: rascunho local, sem efeitos externos.
 - `auth_status`: indica presença de token local válido, sem revelá-lo.
 - `preview_post`: prévia local, sem código de aprovação nem publicação (servidor padrão).
-- A ferramenta de publicação existe somente no servidor legado experimental; **não utilizar em produção**.
+- Nenhum dos entrypoints MCP expõe uma ferramenta de publicação.
 - `npm run auth`: fluxo OAuth local com callback e gravação restrita do token.
 
-**Importante:** `npm start` executa `dist/safe-server.js`, sem ferramentas de publicação. O antigo `dist/index.js` é legado e inseguro para automação. Não execute `npm run start:legacy` com tokens reais. A integração remota com ChatGPT ainda não foi criada.
+**Importante:** `npm start` executa `dist/safe-server.js`, sem ferramentas de publicação. O antigo `dist/index.js` agora apenas encaminha ao servidor seguro. A integração remota com ChatGPT ainda não foi criada.
 
 ## Requisitos
 
@@ -60,9 +60,9 @@ Não compartilhe client secret, tokens, códigos de autorização ou cookies nes
 
 ## Segurança e limitações
 
-- O servidor padrão não possui ferramenta de publicação. O servidor legado permanece apenas para referência técnica e não deve ser usado com credenciais reais.
+- Os entrypoints MCP não possuem ferramentas de publicação; qualquer futura publicação exige fluxo independente de aprovação humana.
 - A publicação usa a API REST do LinkedIn, mas o endpoint, a versão e a identidade do autor precisam de teste com permissões reais.
-- A prévia do servidor seguro não concede autorização para publicação. O mecanismo legado de aprovação não comprova consentimento humano.
+- A prévia do servidor seguro não concede autorização para publicação.
 - O token é salvo localmente sem criptografia adicional; proteja o usuário e o dispositivo.
 - Não há leitura de feed, mensagens, conexões, edição de perfil nem candidaturas automáticas.
 - Não existe ainda servidor MCP HTTPS remoto para ChatGPT.
