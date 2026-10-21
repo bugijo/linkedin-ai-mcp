@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { randomBytes, timingSafeEqual } from "node:crypto";
+import { timingSafeEqual } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createPublicSafeServer } from "./public-safe-server.js";
 
