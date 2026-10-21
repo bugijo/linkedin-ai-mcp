@@ -1,15 +1,32 @@
-import { mkdir, readFile, writeFile, chmod } from "node:fs/promises";
+import { mkdir, open, readFile, rename, rm, chmod } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 export type LinkedInToken = { access_token: string; expires_at: number; scope?: string };
 export const tokenPath = join(homedir(), ".config", "linkedin-ai-mcp", "token.json");
 
 export async function saveToken(token: LinkedInToken, path = tokenPath): Promise<void> {
-  if (!token.access_token || !Number.isFinite(token.expires_at)) throw new Error("Token inválido");
-  await mkdir(join(path, ".."), { recursive: true, mode: 0o700 });
-  await writeFile(path, JSON.stringify(token), { encoding: "utf8", mode: 0o600, flag: "w" });
-  await chmod(path, 0o600);
+  if (!token.access_token || !Number.isFinite(token.expires_at) || token.expires_at <= Date.now()) {
+    throw new Error("Token inválido");
+  }
+  const directory = dirname(path);
+  await mkdir(directory, { recursive: true, mode: 0o700 });
+  await chmod(directory, 0o700);
+  const temporary = join(directory, ".token-" + randomBytes(12).toString("hex"));
+  try {
+    const handle = await open(temporary, "wx", 0o600);
+    try {
+      await handle.writeFile(JSON.stringify(token), "utf8");
+      await handle.sync();
+    } finally {
+      await handle.close();
+    }
+    await rename(temporary, path);
+    await chmod(path, 0o600);
+  } finally {
+    await rm(temporary, { force: true });
+  }
 }
 
 export async function loadToken(path = tokenPath): Promise<LinkedInToken> {
