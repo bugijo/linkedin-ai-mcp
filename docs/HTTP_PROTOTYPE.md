@@ -36,4 +36,4 @@ Do not claim a successful ChatGPT connection until it has been tested with a sup
 
 ## Current hardening work
 
-The authorization, browser origin, and declared Content-Length checks have isolated unit tests. A bounded JSON request reader now checks the actual body size before forwarding to the MCP transport, including chunked requests. Unit tests cover the reader, and the standalone streaming limiter is retained for comparison. **End-to-end HTTP integration tests, host validation and rate limiting are still required.** Do not expose this prototype to the public internet.
+The authorization, browser origin, and declared Content-Length checks have isolated unit tests. A bounded JSON request reader now checks the actual body size before forwarding to the MCP transport, including chunked requests. Unit tests cover the reader, and the standalone streaming limiter is retained for comparison. Host validation is implemented with unit tests. **End-to-end HTTP integration tests and rate limiting are still required.** Do not expose this prototype to the public internet.
