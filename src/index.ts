@@ -17,6 +17,6 @@ server.registerTool("get_capabilities", {
 server.registerTool("draft_post", {
   description: "Prepare a LinkedIn post locally without publishing",
   inputSchema: { topic: z.string().trim().min(1).max(500), audience: z.string().trim().max(120).optional() },
-}, async ({ topic, audience }) => ({ content: [{ type: "text", text: `Rascunho para LinkedIn\\n\\nTema: ${topic}\\nPúblico: ${audience || "profissionais"}\\n\\n[Escreva sua experiência real e revise antes de publicar.]\\n\\nStatus: NÃO PUBLICADO` }] }));
+}, async ({ topic, audience }) => ({ content: [{ type: "text", text: `Rascunho para LinkedIn\n\nTema: ${topic}\nPúblico: ${audience || "profissionais"}\n\n[Escreva sua experiência real e revise antes de publicar.]\n\nStatus: NÃO PUBLICADO` }] }));
 
 await server.connect(new StdioServerTransport());
