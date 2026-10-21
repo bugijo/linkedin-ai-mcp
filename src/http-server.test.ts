@@ -19,7 +19,7 @@ test("HTTP MCP rejects unauthorized and invalid requests", { timeout: 15000 }, a
   const token = "test-only-token-".padEnd(40, "x");
   const child = spawn(process.execPath, ["dist/http-server.js"], {
     env: { ...process.env, PORT: String(port), MCP_BEARER_TOKEN: token },
-    stdio: ["ignore", "pipe", "pipe"]
+    stdio: ["ignore", "ignore", "ignore"]
   });
   try {
     let ready = false;
