@@ -59,7 +59,7 @@ test("HTTP MCP rejects unauthorized and invalid requests", { timeout: 15000 }, a
     assert.equal(listed.status, 200);
     const toolsResponse = await listed.json() as { result?: { tools?: Array<{ name: string }> } };
     assert.deepEqual(toolsResponse.result?.tools?.map((tool) => tool.name).sort(),
-      ["draft_post", "get_capabilities", "preview_post"]);
+      ["draft_post", "get_capabilities", "plan_content", "preview_post"]);
     const preview = await fetch(url, {
       method: "POST",
       headers: { ...headers, "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
@@ -73,6 +73,17 @@ test("HTTP MCP rejects unauthorized and invalid requests", { timeout: 15000 }, a
     const review = JSON.parse(previewPayload.result?.content?.[0]?.text ?? "{}") as { published?: boolean; text?: string };
     assert.equal(review.published, false);
     assert.equal(review.text, "Teste local");
+    const planned = await fetch(url, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 4, method: "tools/call",
+        params: { name: "plan_content", arguments: { topic: "Automação", count: 2 } } })
+    });
+    assert.equal(planned.status, 200);
+    const planResponse = await planned.json() as { result?: { content?: Array<{ text?: string }> } };
+    const plan = JSON.parse(planResponse.result?.content?.[0]?.text ?? "{}") as { published?: boolean; ideas?: unknown[] };
+    assert.equal(plan.published, false);
+    assert.equal(plan.ideas?.length, 2);
     const oversized = await fetch(url, {
       method: "POST",
       headers: { ...headers, "Content-Type": "application/json" },
