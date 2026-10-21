@@ -4,6 +4,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { createPublicSafeServer } from "./public-safe-server.js";
 import { BodyReadError, readLimitedJsonBody } from "./read-body.js";
 import { isAllowedHost } from "./host-policy.js";
+import { FixedWindowRateLimiter } from "./rate-limit.js";
 
 const secret = process.env.MCP_BEARER_TOKEN;
 if (!secret || secret.length < 32) throw new Error("MCP_BEARER_TOKEN must be at least 32 characters");
