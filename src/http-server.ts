@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { isAuthorized, isAllowedOrigin, isValidContentLength } from "./http-security.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createPublicSafeServer } from "./public-safe-server.js";
+import { BodyReadError, readLimitedJsonBody } from "./read-body.js";
 
 const secret = process.env.MCP_BEARER_TOKEN;
 if (!secret || secret.length < 32) throw new Error("MCP_BEARER_TOKEN must be at least 32 characters");
@@ -33,6 +34,14 @@ const httpServer = createServer(async (req, res) => {
     res.writeHead(413).end("Request too large");
     return;
   }
+  let parsedBody: unknown;
+  try {
+    parsedBody = await readLimitedJsonBody(req);
+  } catch (error) {
+    const status = error instanceof BodyReadError ? error.statusCode : 400;
+    res.writeHead(status).end("Invalid request body");
+    return;
+  }
   const server = createPublicSafeServer();
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
@@ -40,7 +49,7 @@ const httpServer = createServer(async (req, res) => {
   });
   try {
     await server.connect(transport);
-    await transport.handleRequest(req, res);
+    await transport.handleRequest(req, res, parsedBody);
   } catch {
     if (!res.headersSent) res.writeHead(500).end("Internal error");
   } finally {
