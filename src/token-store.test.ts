@@ -29,3 +29,28 @@ test("rejects expired tokens", async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test("rejects token that will expire within sixty seconds", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "linkedin-mcp-"));
+  try {
+    const file = join(dir, "token.json");
+    await saveToken({ access_token: "fake", expires_at: Date.now() + 30000 }, file);
+    await assert.rejects(loadToken(file), /expirado/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("overwrites a previous token without leaving temporary files", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "linkedin-mcp-"));
+  try {
+    const file = join(dir, "token.json");
+    await saveToken({ access_token: "old", expires_at: Date.now() + 3600000 }, file);
+    await saveToken({ access_token: "new", expires_at: Date.now() + 3600000 }, file);
+    assert.equal((await loadToken(file)).access_token, "new");
+    const { readdir } = await import("node:fs/promises");
+    assert.deepEqual(await readdir(dir), ["token.json"]);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
