@@ -1,6 +1,5 @@
 import { createServer } from "node:http";
-import { createInterface } from "node:readline/promises";
-import { stdin, stdout } from "node:process";
+import { stdout } from "node:process";
 import { createAuthorizationRequest, LINKEDIN_TOKEN_ENDPOINT, validateOAuthCallback } from "./oauth.js";
 import { saveToken } from "./token-store.js";
 
@@ -19,6 +18,10 @@ async function main(): Promise<void> {
   const server = createServer(async (req, res) => {
     const requestUrl = new URL(req.url ?? "/", redirectUri);
     if (requestUrl.pathname !== "/callback" || completed) { res.writeHead(404).end(); return; }
+    if (requestUrl.searchParams.get("state") !== state) {
+      res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" }).end("Estado OAuth invalido");
+      return;
+    }
     completed = true;
     try {
       const error = requestUrl.searchParams.get("error");
