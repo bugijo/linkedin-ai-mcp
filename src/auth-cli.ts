@@ -48,6 +48,10 @@ async function main(): Promise<void> {
       server.close();
     }
   });
+  server.on("error", (error) => {
+    process.stderr.write("OAuth listener error: " + error.message + "\n");
+    process.exitCode = 1;
+  });
   server.listen(port, "localhost", () => {
     stdout.write("Abra este endereço no navegador para autorizar o LinkedIn:\n" + url + "\n");
   });
