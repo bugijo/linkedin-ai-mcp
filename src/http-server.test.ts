@@ -60,6 +60,12 @@ test("HTTP MCP rejects unauthorized and invalid requests", { timeout: 15000 }, a
     const toolsResponse = await listed.json() as { result?: { tools?: Array<{ name: string }> } };
     assert.deepEqual(toolsResponse.result?.tools?.map((tool) => tool.name).sort(),
       ["draft_post", "get_capabilities", "preview_post"]);
+    const oversized = await fetch(url, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ data: "x".repeat(70 * 1024) })
+    });
+    assert.equal(oversized.status, 413);
     const invalidOrigin = await fetch(url, { method: "POST", headers: { ...headers, "Content-Type": "application/json", Origin: "https://untrusted.example" }, body: "{}" });
     assert.equal(invalidOrigin.status, 403);
   } finally {
