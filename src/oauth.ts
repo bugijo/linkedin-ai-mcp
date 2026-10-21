@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { randomBytes, timingSafeEqual } from "node:crypto";
 
 export const LINKEDIN_AUTH_ENDPOINT = "https://www.linkedin.com/oauth/v2/authorization";
 export const LINKEDIN_TOKEN_ENDPOINT = "https://www.linkedin.com/oauth/v2/accessToken";
@@ -30,7 +30,10 @@ export function createAuthorizationRequest(config: OAuthConfig): { url: string; 
 }
 
 export function validateOAuthCallback(expectedState: string, receivedState: string | null, code: string | null): string {
-  if (!expectedState || !receivedState || expectedState !== receivedState) throw new Error("OAuth state inválido");
+  if (!expectedState || !receivedState) throw new Error("OAuth state inválido");
+  const a = Buffer.from(expectedState);
+  const b = Buffer.from(receivedState);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) throw new Error("OAuth state inválido");
   if (!code || !code.trim()) throw new Error("Código de autorização ausente");
   return code;
 }
