@@ -87,6 +87,16 @@ test("HTTP MCP rejects unauthorized and invalid requests", { timeout: 15000 }, a
     assert.equal(deniedHost.status, 403);
     const invalidOrigin = await fetch(url, { method: "POST", headers: { ...headers, "Content-Type": "application/json", Origin: "https://untrusted.example" }, body: "{}" });
     assert.equal(invalidOrigin.status, 403);
+    let rateLimited = false;
+    for (let attempt = 0; attempt < 70; attempt++) {
+      const response = await fetch(url, { method: "GET", headers });
+      if (response.status === 429) {
+        assert.ok(Number(response.headers.get("retry-after")) >= 1);
+        rateLimited = true;
+        break;
+      }
+    }
+    assert.equal(rateLimited, true, "Expected rate limiting after repeated requests");
   } finally {
     if (child.exitCode === null && child.signalCode === null) {
       const exited = once(child, "exit");
