@@ -48,6 +48,7 @@ server.registerTool("confirm_publish", {
   inputSchema: { approvalCode: z.string().length(24) },
 }, async ({ approvalCode }) => {
   try {
+    if (process.env.LINKEDIN_ENABLE_PUBLISH !== "true") throw new Error("Publicação desativada. Configure LINKEDIN_ENABLE_PUBLISH=true apenas após testar OAuth.");
     const text = consumeApprovedPost(approvalCode);
     const result = await publishTextPost(text);
     return { content: [{ type: "text", text: JSON.stringify({ published: true, ...result }) }] };
