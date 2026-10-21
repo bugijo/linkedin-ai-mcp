@@ -3,6 +3,7 @@ import { isAuthorized, isAllowedOrigin, isValidContentLength } from "./http-secu
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createPublicSafeServer } from "./public-safe-server.js";
 import { BodyReadError, readLimitedJsonBody } from "./read-body.js";
+import { isAllowedHost } from "./host-policy.js";
 
 const secret = process.env.MCP_BEARER_TOKEN;
 if (!secret || secret.length < 32) throw new Error("MCP_BEARER_TOKEN must be at least 32 characters");
@@ -14,6 +15,10 @@ const httpServer = createServer(async (req, res) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   if (req.url !== "/mcp") {
     res.writeHead(404).end("Not found");
+    return;
+  }
+  if (!isAllowedHost(req.headers.host, process.env.MCP_ALLOWED_HOST, port)) {
+    res.writeHead(403).end("Host forbidden");
     return;
   }
   if (!isAuthorized(req.headers.authorization, secret)) {
