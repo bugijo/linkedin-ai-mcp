@@ -60,6 +60,19 @@ test("HTTP MCP rejects unauthorized and invalid requests", { timeout: 15000 }, a
     const toolsResponse = await listed.json() as { result?: { tools?: Array<{ name: string }> } };
     assert.deepEqual(toolsResponse.result?.tools?.map((tool) => tool.name).sort(),
       ["draft_post", "get_capabilities", "preview_post"]);
+    const preview = await fetch(url, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+      body: JSON.stringify({
+        jsonrpc: "2.0", id: 3, method: "tools/call",
+        params: { name: "preview_post", arguments: { text: "Teste local" } }
+      })
+    });
+    assert.equal(preview.status, 200);
+    const previewPayload = await preview.json() as { result?: { content?: Array<{ text?: string }> } };
+    const review = JSON.parse(previewPayload.result?.content?.[0]?.text ?? "{}") as { published?: boolean; text?: string };
+    assert.equal(review.published, false);
+    assert.equal(review.text, "Teste local");
     const oversized = await fetch(url, {
       method: "POST",
       headers: { ...headers, "Content-Type": "application/json" },
