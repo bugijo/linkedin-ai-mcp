@@ -8,7 +8,7 @@ import type { IncomingMessage } from "node:http";
 function mockRequest(parts: string[], contentType = "application/json"): IncomingMessage {
   const source = Readable.from(parts);
   Object.assign(source, { headers: { "content-type": contentType } });
-  return source as IncomingMessage;
+  return source as unknown as IncomingMessage;
 }
 
 test("parses a JSON body sent in chunks", async () => {
