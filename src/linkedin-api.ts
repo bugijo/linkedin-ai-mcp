@@ -1,12 +1,13 @@
 import { loadToken } from "./token-store.js";
 
 const API = "https://api.linkedin.com/rest/posts";
-const VERSION = "202506";
+const VERSION = process.env.LINKEDIN_API_VERSION ?? "202609";
 
 export type PublishResult = { id: string | null; status: number };
 
 export async function publishTextPost(text: string, token?: string): Promise<PublishResult> {
   if (!text.trim() || text.length > 3000) throw new Error("Texto inválido (1 a 3000 caracteres)");
+  if (!/^20[0-9]{4}$/.test(VERSION)) throw new Error("LINKEDIN_API_VERSION deve ser YYYYMM");
   const accessToken = token ?? (await loadToken()).access_token;
   const profileResponse = await fetch("https://api.linkedin.com/v2/userinfo", {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -32,5 +33,6 @@ export async function publishTextPost(text: string, token?: string): Promise<Pub
     }),
   });
   if (!response.ok) throw new Error(`LinkedIn publish HTTP ${response.status}`);
+  if (response.status !== 201) throw new Error(`Resposta de publicação inesperada: HTTP ${response.status}`);
   return { id: response.headers.get("x-restli-id"), status: response.status };
 }
