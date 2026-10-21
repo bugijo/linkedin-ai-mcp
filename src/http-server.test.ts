@@ -69,7 +69,10 @@ test("HTTP MCP rejects unauthorized and invalid requests", { timeout: 15000 }, a
     const invalidOrigin = await fetch(url, { method: "POST", headers: { ...headers, "Content-Type": "application/json", Origin: "https://untrusted.example" }, body: "{}" });
     assert.equal(invalidOrigin.status, 403);
   } finally {
-    child.kill();
-    await Promise.race([once(child, "exit"), new Promise((resolve) => setTimeout(resolve, 1500))]);
+    if (child.exitCode === null && child.signalCode === null) {
+      const exited = once(child, "exit");
+      child.kill();
+      await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 1500))]);
+    }
   }
 });
