@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { loadToken } from "./token-store.js";
+import { reviewPost } from "./post-review.js";
 
 const server = new McpServer({ name: "linkedin-ai-mcp", version: "0.2.0" });
 
@@ -35,10 +36,7 @@ server.registerTool("preview_post", {
   description: "Review post content without issuing approval credentials",
   inputSchema: { text: z.string().trim().min(1).max(3000) },
 }, async ({ text }) => ({
-  content: [{ type: "text", text: JSON.stringify({
-    text, length: text.length, published: false,
-    note: "This MCP server cannot publish."
-  }) }]
+  content: [{ type: "text", text: JSON.stringify(reviewPost(text)) }]
 }));
 
 server.registerTool("auth_status", {
