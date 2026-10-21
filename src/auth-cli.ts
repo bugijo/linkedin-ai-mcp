@@ -17,7 +17,7 @@ async function main(): Promise<void> {
   let completed = false;
   const server = createServer(async (req, res) => {
     const requestUrl = new URL(req.url ?? "/", redirectUri);
-    if (requestUrl.pathname !== "/callback" || completed) { res.writeHead(404).end(); return; }
+    if (req.method !== "GET" || requestUrl.pathname !== "/callback" || completed) { res.writeHead(404).end(); return; }
     if (requestUrl.searchParams.get("state") !== state) {
       res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" }).end("Estado OAuth invalido");
       return;
