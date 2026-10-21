@@ -68,6 +68,7 @@ const httpServer = createServer(async (req, res) => {
     await transport.handleRequest(req, res, parsedBody);
   } catch {
     if (!res.headersSent) res.writeHead(500).end("Internal error");
+    else if (!res.writableEnded) res.end();
   }
 });
 httpServer.requestTimeout = 15_000;
