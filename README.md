@@ -9,11 +9,11 @@ Servidor MCP experimental em TypeScript para preparar conteúdo e integrar publi
 - `get_capabilities`: inventário de ferramentas.
 - `draft_post`: rascunho local, sem efeitos externos.
 - `auth_status`: indica presença de token local válido, sem revelá-lo.
-- `preview_publish`: prévia com código temporário de confirmação.
-- `confirm_publish`: tentativa de publicação, **desabilitada por padrão**.
+- `preview_post`: prévia local, sem código de aprovação nem publicação (servidor padrão).
+- `confirm_publish`: disponível apenas no servidor legado experimental; **não utilizar em produção**.
 - `npm run auth`: fluxo OAuth local com callback e gravação restrita do token.
 
-**Importante:** o código de confirmação retornado ao cliente MCP **não garante aprovação humana independente**; não habilite publicações autônomas. A integração remota com ChatGPT ainda não foi criada.
+**Importante:** `npm start` executa `dist/safe-server.js`, sem ferramentas de publicação. O antigo `dist/index.js` é legado e inseguro para automação. Não execute `npm run start:legacy` com tokens reais. A integração remota com ChatGPT ainda não foi criada.
 
 ## Requisitos
 
@@ -60,7 +60,7 @@ Não compartilhe client secret, tokens, códigos de autorização ou cookies nes
 
 ## Segurança e limitações
 
-- Publicação só é tentada se `LINKEDIN_ENABLE_PUBLISH=true`; **não habilitar antes da validação ponta a ponta**.
+- O servidor padrão não possui ferramenta de publicação. O servidor legado permanece apenas para referência técnica e não deve ser usado com credenciais reais.
 - A publicação usa a API REST do LinkedIn, mas o endpoint, a versão e a identidade do autor precisam de teste com permissões reais.
 - O mecanismo de prévia é um controle técnico inicial, não uma autorização humana robusta.
 - O token é salvo localmente sem criptografia adicional; proteja o usuário e o dispositivo.
