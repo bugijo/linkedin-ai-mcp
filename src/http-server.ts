@@ -26,6 +26,11 @@ const httpServer = createServer(async (req, res) => {
     res.writeHead(403).end("Host forbidden");
     return;
   }
+  const quota = limiter.check(req.socket.remoteAddress ?? "unknown");
+  if (!quota.allowed) {
+    res.writeHead(429, { "Retry-After": String(quota.retryAfterSeconds) }).end("Too many requests");
+    return;
+  }
   if (!isAuthorized(req.headers.authorization, secret)) {
     res.writeHead(401, { "WWW-Authenticate": "Bearer" }).end("Unauthorized");
     return;
