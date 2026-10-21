@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { reviewPost } from "./post-review.js";
+import { planContent } from "./content-plan.js";
 
 export function createPublicSafeServer(): McpServer {
   const server = new McpServer({ name: "linkedin-ai-mcp", version: "0.3.0" });
@@ -9,7 +10,7 @@ export function createPublicSafeServer(): McpServer {
     inputSchema: {},
   }, async () => ({
     content: [{ type: "text", text: JSON.stringify({
-      supported: ["get_capabilities", "draft_post", "preview_post"],
+      supported: ["get_capabilities", "draft_post", "preview_post", "plan_content"],
       publicationEnabled: false,
       linkedInConnected: false
     }) }]
@@ -33,6 +34,15 @@ export function createPublicSafeServer(): McpServer {
     inputSchema: { text: z.string().trim().min(1).max(3000) }
   }, async ({ text }) => ({
     content: [{ type: "text", text: JSON.stringify(reviewPost(text)) }]
+  }));
+  server.registerTool("plan_content", {
+    description: "Plan up to five editorial ideas locally; does not schedule or publish",
+    inputSchema: {
+      topic: z.string().trim().min(1).max(200),
+      count: z.number().int().min(1).max(5).optional()
+    }
+  }, async ({ topic, count }) => ({
+    content: [{ type: "text", text: JSON.stringify(planContent(topic, count)) }]
   }));
   return server;
 }
