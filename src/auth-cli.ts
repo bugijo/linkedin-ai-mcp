@@ -55,7 +55,13 @@ async function main(): Promise<void> {
   server.listen(port, "localhost", () => {
     stdout.write("Abra este endereço no navegador para autorizar o LinkedIn:\n" + url + "\n");
   });
-  const timeout = setTimeout(() => { server.close(); process.stderr.write("Tempo limite de autenticação excedido.\n"); }, 5 * 60_000);
+  const timeout = setTimeout(() => {
+    if (!completed) {
+      process.exitCode = 1;
+      server.close();
+      process.stderr.write("Tempo limite de autenticação excedido.\n");
+    }
+  }, 5 * 60_000);
   server.on("close", () => clearTimeout(timeout));
 }
 
