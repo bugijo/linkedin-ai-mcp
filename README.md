@@ -55,6 +55,7 @@ Exemplo de configuração de cliente MCP compatível com stdio:
 3. Defina `LINKEDIN_CLIENT_ID` e `LINKEDIN_CLIENT_SECRET` como variáveis de ambiente **somente na sua máquina**.
 4. Execute `npm run auth` após compilar; abra o link impresso no terminal.
 5. O token será armazenado em `~/.config/linkedin-ai-mcp/token.json` com modo de arquivo 0600.
+6. Para remover a credencial local, execute `npm run logout` após compilar. Isso não revoga automaticamente a autorização no LinkedIn; revogue-a também nas configurações da conta.
 
 Não compartilhe client secret, tokens, códigos de autorização ou cookies neste chat.
 
